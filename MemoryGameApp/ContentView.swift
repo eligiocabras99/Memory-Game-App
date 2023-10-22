@@ -15,42 +15,53 @@ struct ContentView: View {
     
     var body: some View {
         VStack{
-            HStack{
-                ForEach(0..<cardCount, id: \.self){ index in
-                    CardView(text: emojis[index], isFaceUp: true)
-                }
+            ScrollView{
+                cards
             }
-            .foregroundColor(.red)
-            HStack{
-                addCard
-                Spacer()
-                removeCard
-            }
+            Spacer()
+            AdjustedBar
         }
         .padding()
+    }
+    
+    var cards: some View{
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))]) {
+            ForEach(0..<cardCount, id: \.self){ index in
+                CardView(text: emojis[index], isFaceUp: true)
+                    .aspectRatio(2/3, contentMode: .fit)
+            }
+        }
+        .foregroundColor(.red)
+    }
+    
+    var AdjustedBar: some View{
+        HStack{
+            removeCard
+            Spacer()
+            addCard
+        }
+    }
+    
+    func cardAdjuster(value: Int, symbol: String) -> some View {
+        Button(action: {
+            cardCount += value
+        }, label: {
+            Image(systemName: symbol)
+        })
+        .imageScale(.large)
+        .font(.largeTitle)
+        .disabled(cardCount + value < 0 || cardCount + value > emojis.count)
     }
     
     
     var addCard: some View{
         //Label("Add Folder", systemImage: "rectangle.stack.badge.plus.fill")
-        Button(action: {
-            if cardCount < emojis.count{
-                cardCount += 1
-            }
-        }, label: {
-            Image(systemName: "rectangle.stack.badge.plus.fill")
-        }).font(.largeTitle)
+        cardAdjuster(value: 1, symbol: "rectangle.stack.badge.plus.fill")
     }
     
     var removeCard: some View{
         //Label("Add Folder", systemImage: "rectangle.stack.badge.plus.fill")
-        Button(action: {
-            if cardCount > 1{
-                cardCount -= 1
-            }
-        }, label: {
-            Image(systemName: "rectangle.stack.badge.minus.fill")
-        }).font(.largeTitle)
+        cardAdjuster(value: -1, symbol: "rectangle.stack.badge.minus.fill")
     }
     
     
@@ -66,13 +77,13 @@ struct CardView: View {
         let card = RoundedRectangle(cornerRadius: 12)
         
         ZStack{
-            if isFaceUp == true{
+            Group{
                 card.fill(.white)
                 card.strokeBorder(lineWidth: 4)
                 Text(text).font(.largeTitle)
-            }else{
-                card.fill(.red)
             }
+            .opacity(isFaceUp ? 1 : 0)
+            card.fill(.red).opacity(isFaceUp ? 0 : 1)
         }.onTapGesture {
             isFaceUp.toggle() //isFaceUp = !isFaceUp
         }
