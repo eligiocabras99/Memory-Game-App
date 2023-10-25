@@ -9,29 +9,77 @@ import SwiftUI
 
 struct ContentView: View {
     //["🐻","🐶","🐬","🐟","🍀","🚗","🍎","😍","😉","😓","😳","🌟","🎉","🌺","👽","💀","🐵","🐮","🐎","💣"]
-    var emojis : Array<String> = ["🐻","🐶","🐬","🐟","🍀","🚗","😳"]
     
-    @State var cardCount: Int = 4
+    @State var emojis : Array<String> = []
+    
+    @State var cardCount: Int = 0
     
     var body: some View {
         VStack{
+            Text("Memorize!").font(.largeTitle).bold()
             ScrollView{
                 cards
             }
             Spacer()
-            AdjustedBar
+            //AdjustedBar
+            themeBar
         }
         .padding()
     }
     
     var cards: some View{
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))]) {
-            ForEach(0..<cardCount, id: \.self){ index in
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 60))]) {
+            
+            ForEach(0..<emojis.count, id: \.self){ index in
                 CardView(text: emojis[index], isFaceUp: true)
                     .aspectRatio(2/3, contentMode: .fit)
             }
+            
         }
         .foregroundColor(.red)
+    }
+    
+    var themeBar: some View{
+        HStack{
+            Spacer()
+            faceTheme
+            Spacer()
+            animalTheme
+            Spacer()
+            fruitTheme
+            Spacer()
+        }.imageScale(.large)
+        
+    }
+    
+    
+    func themeChoser(array: Array<String>, symbol: String, theme: String) -> some View{
+        Button(action: {
+            
+            emojis = array + array
+            emojis.shuffle()
+            
+        }, label: {
+            VStack{
+                Image(systemName: symbol).bold()
+                    
+                Text(theme).font(.body)
+            }
+            
+        })
+        
+    }
+    
+    var faceTheme: some View{
+        themeChoser(array: ["😍","😉","😓","😳","👽","💀","😎"], symbol: "face.dashed", theme: "Faces")
+    }
+    
+    var animalTheme: some View{
+        themeChoser(array: ["🐵","🐮","🐎","🐻","🐶","🐬","🐟"], symbol: "teddybear", theme: "Animals")
+    }
+    
+    var fruitTheme: some View{
+        themeChoser(array: ["🍎","🍌","🍐","🍍","🍏","🥝","🍑"], symbol: "fork.knife", theme: "Food")
     }
     
     var AdjustedBar: some View{
